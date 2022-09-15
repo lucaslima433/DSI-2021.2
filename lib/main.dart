@@ -2,7 +2,10 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp(
+    title: 'Navigation Basics',
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -10,18 +13,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wordPair = WordPair.random();
-    return MaterialApp(
-      title: 'Startup Name Generator',
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text('Startup Name Generator'),
+          
         ),
         body: const Center(
           child: RandomWords(),
         ),
-      ),
-    );
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Listagrid()),
+            );
+          },
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.swipe),
+        ),
+      );
   }
 }
 
@@ -55,4 +65,38 @@ class RandomWords extends StatefulWidget {
 
   @override
   State<RandomWords> createState() => _RandomWordsState();
+}
+
+class Listagrid extends StatelessWidget {
+  const Listagrid({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final _suggestions = <WordPair>[];
+
+
+    return new Scaffold(
+      appBar: AppBar(
+          title: const Text('Startup Name Generator'),
+        ),
+        
+      body: GridView.count(crossAxisCount: 2,
+        children: List.generate(100, (index) {
+          if (index >= _suggestions.length) {
+            _suggestions.addAll(generateWordPairs().take(10));
+          }
+          return Center(
+            child: Text(_suggestions[index].asPascalCase)
+          );
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.swipe),
+        ),
+    );
+  }
 }
