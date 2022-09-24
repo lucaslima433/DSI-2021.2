@@ -2,10 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'Navigation Basics',
-    home: MyApp(),
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,90 +10,103 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Startup Name Generator'),
-          
-        ),
-        body: const Center(
-          child: RandomWords(),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Listagrid()),
-            );
-          },
-          backgroundColor: Colors.blue,
-          child: const Icon(Icons.swipe),
-        ),
-      );
+    return MaterialApp(
+      title: 'Startup Name Generator',
+      home: Homepage(),
+    );
   }
 }
 
-class _RandomWordsState extends State<RandomWords> {
+class Homepage extends StatefulWidget {
+  const Homepage({Key? key}) : super(key: key);
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
   final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18);
+  String _view = "list";
 
   @override
   Widget build(BuildContext context) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i.isOdd) return const Divider();
-          final index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return ListTile(
-            title: Text(
-              _suggestions[index].asPascalCase,
-              style: _biggerFont,
-            ),
-          );
-        },
-      );
-    }
-}
-
-class RandomWords extends StatefulWidget {
-  const RandomWords({super.key});
-
-  @override
-  State<RandomWords> createState() => _RandomWordsState();
-}
-
-class Listagrid extends StatelessWidget {
-  const Listagrid({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final _suggestions = <WordPair>[];
-
-
-    return new Scaffold(
-      appBar: AppBar(
+    return Scaffold(
+        appBar: AppBar(
           title: const Text('Startup Name Generator'),
         ),
+          
+        body: Center(
+            child: _home(context)
+          ),
         
-      body: GridView.count(crossAxisCount: 2,
-        children: List.generate(100, (index) {
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return Center(
-            child: Text(_suggestions[index].asPascalCase)
-          );
-        }),
-      ),
-      floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pop(context);
+            if (_view == "list") {
+              _view = "grid";
+            } else {
+              _view = "list";
+            }
+            setState(() {});
           },
           backgroundColor: Colors.blue,
           child: const Icon(Icons.swipe),
         ),
+    );
+  }
+
+  _home(BuildContext context){
+    if (_view == "list") {
+      return _listView();
+    } else {
+      return _gridView();
+    }
+  }
+
+  _listView() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+
+      itemBuilder: /*1*/ (context, i) {
+        if (i.isOdd) return const Divider(); /*2*/
+
+        final index = i ~/ 2; /*3*/
+        if (index >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+        }
+        
+        return ListTile(
+          title: Text(
+            _suggestions[index].asPascalCase,
+            style: _biggerFont,
+          ),
+        );
+      },
+    );
+  }
+
+  _gridView() {
+    return GridView.builder(
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      padding: const EdgeInsets.all(16.0),
+
+      itemBuilder: /*1*/ (context, i) { /*3*/
+        if (i >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+        }
+
+
+        return Card(
+          borderOnForeground: true,
+          child: Center(
+            child: Text(
+              _suggestions[i].asPascalCase,
+              style: _biggerFont,
+            ),
+          )
+        );
+      },
     );
   }
 }
