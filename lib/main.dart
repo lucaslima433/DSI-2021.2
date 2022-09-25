@@ -126,23 +126,41 @@ class _HomepageState extends State<Homepage> {
             style: _biggerFont,
           ),
           
-          trailing: Icon(
-            alreadySaved ? Icons.favorite : Icons.favorite_border,
-            color: alreadySaved ? Colors.red : null,
-            semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+          trailing: Wrap(
+            children: [
+              IconButton(icon: Icon(
+                alreadySaved ? Icons.favorite : Icons.favorite_border,
+                color: alreadySaved ? Colors.red : null,
+                semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+              ),
+
+              onPressed: () {
+                    setState(() {
+                      if (alreadySaved) {
+                        _saved.remove(_suggestions[index]);
+                      } else {
+                        _saved.add(_suggestions[index]);
+                      }
+                    }
+                  );    
+                },
+              ),
+
+              IconButton(
+                icon: Icon(
+                  Icons.delete
+                ),
+
+                onPressed: () {
+                  setState(() {
+                      if (alreadySaved) {_saved.remove(_suggestions[index]);}
+                      _suggestions.removeAt(index);
+                    }
+                  );
+                },
+              ),
+            ],
           ),
-
-          onTap: () {          // NEW from here ...
-                setState(() {
-                  if (alreadySaved) {
-                    _saved.remove(_suggestions[index]);
-                  } else {
-                    _saved.add(_suggestions[index]);
-                  }
-                }
-              );    
-            },
-
         );
       },
     );
@@ -175,25 +193,44 @@ class _HomepageState extends State<Homepage> {
                 height: 20,
               ),
 
-              IconButton(
-                icon: Icon(
-                alreadySaved ? Icons.favorite : Icons.favorite_border,
-                color: alreadySaved ? Colors.red : null,
-                semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
-              ),
-              
-              onPressed: () => {
-                setState(() {
-                    if (alreadySaved) {
-                      _saved.remove(_suggestions[index]);
-                    } else {
-                      _saved.add(_suggestions[index]);
-                    }
-                  }
-                )
-              },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                    alreadySaved ? Icons.favorite : Icons.favorite_border,
+                    color: alreadySaved ? Colors.red : null,
+                    semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+                  ),
+                  
+                  onPressed: () => {
+                    setState(() {
+                        if (alreadySaved) {
+                          _saved.remove(_suggestions[index]);
+                        } else {
+                          _saved.add(_suggestions[index]);
+                        }
+                      }
+                    )
+                  },
 
-              )  
+                  ),
+
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete
+                    ),
+
+                    onPressed: () {
+                      setState(() {
+                          if (alreadySaved) {_saved.remove(_suggestions[index]);}
+                          _suggestions.removeAt(index);
+                        }
+                      );
+                    },
+                  ),
+                ],
+              ), 
             ],    
 
           )
