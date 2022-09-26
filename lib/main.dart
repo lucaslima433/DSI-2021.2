@@ -5,25 +5,39 @@ void main() {
   runApp(const MyApp());
 }
 
+class Argumentos {
+  final Repositorio rep;
+  final int index;
+  Argumentos(this.rep, this.index);
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const Homepage(),
+        '/editar': (context) => const Editar(),
+      },
+
+
+
       title: 'Startup Name Generator',
-      theme: ThemeData(          // Add the 5 lines from here... 
+      theme: ThemeData(
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
         ),
       ),
-      home: const Homepage(),
     );
   }
 }
 
 class Homepage extends StatefulWidget {
+  static const routeName = '/';
   const Homepage({Key? key}) : super(key: key);
 
   @override
@@ -31,8 +45,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  final _suggestions = <WordPair>[];
-  final _saved = <WordPair>{};
+  final Repositorio _suggestions = Repositorio();
+  final _saved = <Word>{};
   final _biggerFont = const TextStyle(fontSize: 18);
   String _view = "list";
 
@@ -110,57 +124,65 @@ class _HomepageState extends State<Homepage> {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
 
+      itemCount: _suggestions.length,
       itemBuilder: /*1*/ (context, i) {
         if (i.isOdd) return const Divider(); /*2*/
 
         final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-
-        final alreadySaved = _saved.contains(_suggestions[index]);
+        final alreadySaved = _saved.contains(_suggestions.index(index));
         
-        return ListTile(
-          title: Text(
-            _suggestions[index].asPascalCase,
-            style: _biggerFont,
-          ),
-          
-          trailing: Wrap(
-            children: [
-              IconButton(icon: Icon(
-                alreadySaved ? Icons.favorite : Icons.favorite_border,
-                color: alreadySaved ? Colors.red : null,
-                semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
-              ),
-
-              onPressed: () {
-                    setState(() {
-                      if (alreadySaved) {
-                        _saved.remove(_suggestions[index]);
-                      } else {
-                        _saved.add(_suggestions[index]);
-                      }
-                    }
-                  );    
-                },
-              ),
-
-              IconButton(
-                icon: Icon(
-                  Icons.delete
+        return GestureDetector(
+          child: ListTile(
+            title: Text(
+              _suggestions.index(index).asPascalCase,
+              style: _biggerFont,
+            ),
+            
+            trailing: Wrap(
+              children: [
+                IconButton(icon: Icon(
+                  alreadySaved ? Icons.favorite : Icons.favorite_border,
+                  color: alreadySaved ? Colors.red : null,
+                  semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
                 ),
 
                 onPressed: () {
-                  setState(() {
-                      if (alreadySaved) {_saved.remove(_suggestions[index]);}
-                      _suggestions.removeAt(index);
-                    }
-                  );
-                },
-              ),
-            ],
+                      setState(() {
+                        if (alreadySaved) {
+                          _saved.remove(_suggestions.index(index));
+                        } else {
+                          _saved.add(_suggestions.index(index));
+                        }
+                      }
+                    );    
+                  },
+                ),
+
+                IconButton(
+                  icon: Icon(
+                    Icons.delete
+                  ),
+
+                  onPressed: () {
+                    setState(() {
+                        if (alreadySaved) {_saved.remove(_suggestions.index(index));}
+                        _suggestions.remove(index);
+                      }
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
+
+          onTap: () {   
+            Navigator.pushNamed(context, '/editar').then(
+                (value) => (
+                  setState(() {})
+                )
+              );
+          },
+
         );
       },
     );
@@ -172,70 +194,161 @@ class _HomepageState extends State<Homepage> {
           const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       padding: const EdgeInsets.all(16.0),
 
+      itemCount: _suggestions.length,
       itemBuilder: /*1*/ (context, index) { /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
+        final alreadySaved = _saved.contains(_suggestions.index(index));
 
-        final alreadySaved = _saved.contains(_suggestions[index]);
+        return GestureDetector(
+          child: Card(
+            borderOnForeground: true,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                  Text(
+                  _suggestions.index(index).asPascalCase,
+                  style: _biggerFont,
+                ),
 
-        return Card(
-          borderOnForeground: true,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-                Text(
-                _suggestions[index].asPascalCase,
-                style: _biggerFont,
-              ),
+                const SizedBox(
+                  height: 20,
+                ),
 
-              const SizedBox(
-                height: 20,
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                        alreadySaved ? Icons.favorite : Icons.favorite_border,
+                        color: alreadySaved ? Colors.red : null,
+                        semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+                      ),
+                      
+                      onPressed: () => {
+                        setState(() {
+                            if (alreadySaved) {
+                              _saved.remove(_suggestions.index(index));
+                            } else {
+                              _saved.add(_suggestions.index(index));
+                            }
+                          }
+                        )
+                      },
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                    alreadySaved ? Icons.favorite : Icons.favorite_border,
-                    color: alreadySaved ? Colors.red : null,
-                    semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
-                  ),
-                  
-                  onPressed: () => {
-                    setState(() {
-                        if (alreadySaved) {
-                          _saved.remove(_suggestions[index]);
-                        } else {
-                          _saved.add(_suggestions[index]);
-                        }
-                      }
-                    )
-                  },
+                      ),
 
-                  ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete
+                        ),
 
-                  IconButton(
-                    icon: Icon(
-                      Icons.delete
-                    ),
+                        onPressed: () {
+                          setState(() {
+                              if (alreadySaved) {_saved.remove(_suggestions.index(index));}
+                              _suggestions.remove(_suggestions.index(index));
+                            }
+                          );
+                        },
+                      ),
+                    ],
+                  ), 
+                ],    
+            ),
+          ),
 
-                    onPressed: () {
-                      setState(() {
-                          if (alreadySaved) {_saved.remove(_suggestions[index]);}
-                          _suggestions.removeAt(index);
-                        }
-                      );
-                    },
-                  ),
-                ],
-              ), 
-            ],    
+          onTap: () {   
+            Navigator.pushNamed(context, '/editar').then(
+                (value) => (
+                  setState(() {})
+                )
+              );
+          },
 
-          )
         );
       },
     );
+  }
+}
+
+class Editar extends StatefulWidget {
+  const Editar({Key? key}) : super(key: key);
+
+  @override
+  State<Editar> createState() => _EditarState();
+}
+
+class _EditarState extends State<Editar> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Pagina de Edição"),
+      ),
+    );
+  }
+}
+
+class Word {
+  String? _text;
+  String? _textPascalCase;
+  String? _newText;
+
+  Word({required String text, required String textPascal }) {
+    _text = text;
+    _textPascalCase = textPascal;
+  }
+
+  String get text {
+    if (_newText == null) return _text!;
+    return _newText!;
+  }
+
+  String get asPascalCase {
+    if (_newText == null) return _textPascalCase!;
+    return _newText!;
+  }
+
+  set text(String newText) {
+    _newText = newText;
+  }
+
+  changeWord(String newString) {
+    if (_newText != null) {
+      _text = _newText;
+      _textPascalCase = _newText;
+    }
+    _newText = newString;
+  }
+}
+
+class Repositorio {
+  final List<Word> _list = [];
+
+  Repositorio() {
+    for (int i = 0; i < 40; i++) {
+      final word = generateWordPairs().take(1).first;
+      _list.add(Word(
+        text: word.toString(), textPascal: word.asPascalCase.toString()
+      ));
+    }
+  }
+
+  List<Word> get list {
+    return _list;
+  }
+
+  int get length {
+    return _list.length;
+  }
+
+  index(int index) {
+    return _list[index];
+  }
+
+  remove(int index) {
+    _list.removeAt(index);
+  }
+
+  changeWordByIndex(String newString, int index) {
+    _list[index].changeWord(newString);
   }
 }
