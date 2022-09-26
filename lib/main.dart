@@ -259,6 +259,7 @@ class _EditarState extends State<Editar> {
     final Repositorio palavraSel = palavras['suggestions'];
     final int index = palavras['index'];
 
+    TextEditingController _textEditingController = TextEditingController();
 
     return Scaffold(
         appBar: AppBar(
@@ -277,8 +278,41 @@ class _EditarState extends State<Editar> {
             Center(
                 child: Text(palavraSel.index(index).asPascalCase,
                     style: const TextStyle(fontSize: 32, color: Colors.black))),
+            Padding(
+              padding: const EdgeInsets.all(64.0),
+              child: TextField(
+                controller: _textEditingController,
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      const Radius.circular(12.0),
+                    ),
+                  ),
+                  labelText: 'Digite um novo nome',
+                  labelStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
+                ),
+              ),
+            ),
+
+            RaisedButton(
+              child: Text('Editar'),
+              onPressed: () => submit(_textEditingController, palavraSel, index),
+            ),
+            
+            //Text(texto)
           ],
-        ));
+        )
+        
+        
+    );
+  }
+
+  void submit(textEdit, palavraSel, index){
+    setState(() {
+      palavraSel.change(textEdit.text, index);
+    });
+    Navigator.pop(context);
   }
 }
 
@@ -342,7 +376,7 @@ class Repositorio {
     _list.removeAt(index);
   }
 
-  changeWordByIndex(String newString, int index) {
+  change(String newString, int index) {
     _list[index].changeWord(newString);
   }
 }
